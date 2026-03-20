@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { getWorkspaceSnapshot } from "@/lib/data/workspace";
 import { createWeeklyReportAction } from "@/server/actions/workspace-actions";
+import { sendReportEmailAction } from "@/server/actions/email-actions";
 
 export default async function ReportsPage() {
   const snapshot = await getWorkspaceSnapshot();
@@ -70,7 +71,15 @@ export default async function ReportsPage() {
                       {report.week_start_date} to {report.week_end_date}
                     </p>
                   </div>
-                  <Badge variant={report.report_state === "published" ? "default" : "outline"}>{report.report_state}</Badge>
+                  <div className="flex flex-col items-end gap-2">
+                    <Badge variant={report.report_state === "published" ? "default" : "outline"}>{report.report_state}</Badge>
+                    <form action={sendReportEmailAction}>
+                      <input type="hidden" name="reportId" value={report.id} />
+                      <input type="hidden" name="title" value={report.title} />
+                      <input type="hidden" name="summary" value={report.summary ?? "No summary provided."} />
+                      <SubmitButton variant="outline" size="sm" pendingLabel="Sending...">Email me</SubmitButton>
+                    </form>
+                  </div>
                 </div>
                 <p className="mt-4 text-sm text-muted-foreground">{report.summary ?? "No summary yet."}</p>
               </div>
